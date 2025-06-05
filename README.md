@@ -2,16 +2,15 @@
 
 A generative AI-powered teaching assistant that retrieves and explains research papers from arXiv, converting complex academic content into beginner-friendly lessons.
 
-## 🚀 Features
+## Features
 
 - **Intelligent Paper Retrieval**: Searches through a curated collection of LLM and AI systems papers
 - **Semantic Understanding**: Uses vector embeddings and FAISS for similarity-based paper matching
 - **Automated Lesson Generation**: Converts research paper sections into beginner-friendly explanations
 - **PDF Processing**: Integrates with GROBID for structured document parsing
 - **Conversational Interface**: LangGraph-powered agent with memory and summarization
-- **Modular Architecture**: Clean, maintainable codebase with separated concerns
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 llm-teaching-assistant/
@@ -44,7 +43,7 @@ llm-teaching-assistant/
 └── README.md                    # This file
 ```
 
-## 🛠️ Installation
+## Installation
 
 1. **Clone the repository**:
    ```bash
@@ -70,7 +69,7 @@ llm-teaching-assistant/
    # Start GROBID service on port 8070
    ```
 
-## 🚀 Quick Start
+## Quick Start
 
 1. **Initialize the environment**:
    ```bash
@@ -103,7 +102,7 @@ llm-teaching-assistant/
    print(result["messages"][-1].content)
    ```
 
-## 📚 Core Components
+## Core Components
 
 ### Data Fetching
 - **`paper_fetcher.py`**: Retrieves paper metadata from LLMSys repository and abstracts from arXiv
@@ -122,7 +121,7 @@ llm-teaching-assistant/
 - **`teaching_agent.py`**: LangGraph-powered conversational agent
 - **`state_management.py`**: State definitions for the agent system
 
-## 🔧 Configuration
+## Configuration
 
 The system can be configured via environment variables or the `config/settings.py` file:
 
@@ -133,7 +132,7 @@ The system can be configured via environment variables or the `config/settings.p
 - `FAISS_INDEX_PATH`: Path to FAISS index file (default: "summary.faiss")
 - `URLS_JSON_PATH`: Path to URLs JSON file (default: "urls.json")
 
-## 🧪 Usage Examples
+## Usage Examples
 
 ### Basic Paper Search
 ```python
@@ -157,32 +156,9 @@ processor = EmbeddingProcessor()
 embeddings = processor.create_embeddings(["sample text"])
 ```
 
-## 🛡️ Requirements
+## Requirements
 
 - Python 3.8+
 - OpenAI API key
 - GROBID service (for PDF processing)
 - Required Python packages (see `requirements.txt`)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- [LLMSys-PaperList](https://github.com/AmberLJC/LLMSys-PaperList) for the curated paper collection
-- [GROBID](https://github.com/kermitt2/grobid) for PDF processing capabilities
-- [LangChain](https://github.com/langchain-ai/langchain) and [LangGraph](https://github.com/langchain-ai/langgraph) for the agent framework
-- [FAISS](https://github.com/facebookresearch/faiss) for efficient similarity search
-
-## 📞 Support
-
-If you encounter any issues or have questions, please open an issue on GitHub or contact the maintainers.
