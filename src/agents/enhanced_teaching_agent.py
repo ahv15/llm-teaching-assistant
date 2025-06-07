@@ -13,7 +13,7 @@ from langchain.chat_models import init_chat_model
 from langchain_core.messages import AnyMessage, HumanMessage, AIMessage, ToolMessage
 from langchain_core.messages.utils import count_tokens_approximately
 from langgraph.graph import StateGraph, START, MessagesState
-from langgraph.checkpoint.memory import InMemorySupaver
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.prebuilt import ToolNode
 from langmem.short_term import SummarizationNode
 
@@ -126,7 +126,7 @@ class EnhancedTeachingAgent:
     
     def _build_graph(self):
         """Build the LangGraph conversation flow."""
-        checkpointer = InMemorySupaver()
+        checkpointer = InMemorySaver()
         builder = StateGraph(AgentState)
 
         # Add nodes
