@@ -20,11 +20,11 @@ llm-teaching-assistant/
 │   ├── agents/                             # AI agent implementations
 │   │   ├── __init__.py
 │   │   ├── teaching_agent.py               # LangGraph-powered teaching agent
-│   │   ├── leetcode_tools.py               # LeetCode problem fetching tools
 │   │   └── state_management.py             # Agent state definitions
-│   ├── data_fetching/                      # Paper metadata and abstract retrieval
+│   ├── data_fetching/                      # Data retrieval and fetching
 │   │   ├── __init__.py
-│   │   └── paper_fetcher.py
+│   │   ├── paper_fetcher.py                # Paper metadata and abstract retrieval
+│   │   └── leetcode_fetcher.py             # LeetCode problem fetching
 │   ├── embeddings/                         # Vector embeddings and FAISS operations
 │   │   ├── __init__.py
 │   │   └── vector_store.py
@@ -121,16 +121,18 @@ llm-teaching-assistant/
 
 ### Teaching Agent
 - **`teaching_agent.py`**: LangGraph-powered conversational agent with integrated tools
-- **`leetcode_tools.py`**: LeetCode problem fetching and processing
 - **`state_management.py`**: State definitions for the agent system
+
+### Data Fetching
+- **`paper_fetcher.py`**: Retrieves paper metadata from LLMSys repository and abstracts from arXiv
+- **`leetcode_fetcher.py`**: LeetCode problem fetching and processing
 
 ### Paper Processing
 - **`paper_retriever.py`**: Advanced retrieval with GROBID integration and lesson generation
 - **`pdf_processor.py`**: Interfaces with GROBID for PDF parsing and section extraction
 - **`lesson_generator.py`**: Converts academic sections into beginner-friendly lessons
 
-### Data Management
-- **`paper_fetcher.py`**: Retrieves paper metadata from LLMSys repository and abstracts from arXiv
+### Supporting Components
 - **`vector_store.py`**: Manages OpenAI embeddings and FAISS vector operations
 
 ## ⚙️ Configuration
@@ -169,7 +171,7 @@ result = agent.invoke({
 ### Individual Tool Usage
 ```python
 # LeetCode problem fetching
-from src.agents.leetcode_tools import get_problem
+from src.data_fetching.leetcode_fetcher import get_problem
 
 problem = get_problem.invoke({})
 print(f"Problem: {problem['title']}")
