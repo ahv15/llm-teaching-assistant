@@ -1,49 +1,52 @@
 # LLM Teaching Assistant
 
-A generative AI-powered teaching assistant that retrieves and explains research papers from arXiv, converting complex academic content into beginner-friendly lessons.
+A generative AI-powered teaching assistant that retrieves and explains research papers from arXiv, converts complex academic content into beginner-friendly lessons, and provides coding practice through LeetCode integration.
 
-## Features
+## 🚀 Features
 
 - **Intelligent Paper Retrieval**: Searches through a curated collection of LLM and AI systems papers
-- **Semantic Understanding**: Uses vector embeddings and FAISS for similarity-based paper matching
+- **Semantic Understanding**: Uses vector embeddings and FAISS for similarity-based paper matching  
 - **Automated Lesson Generation**: Converts research paper sections into beginner-friendly explanations
 - **PDF Processing**: Integrates with GROBID for structured document parsing
+- **LeetCode Integration**: Fetches random coding problems for interview practice
 - **Conversational Interface**: LangGraph-powered agent with memory and summarization
+- **Advanced Agent System**: Sophisticated conversation flow with tool integration
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 llm-teaching-assistant/
-├── src/                           # Main source code
-│   ├── data_fetching/            # Paper metadata and abstract retrieval
+├── src/                                    # Main source code
+│   ├── agents/                             # AI agent implementations
 │   │   ├── __init__.py
-│   │   └── paper_fetcher.py
-│   ├── embeddings/               # Vector embeddings and FAISS operations
+│   │   ├── teaching_agent.py               # LangGraph-powered teaching agent
+│   │   └── state_management.py             # Agent state definitions
+│   ├── data_fetching/                      # Data retrieval and fetching
+│   │   ├── __init__.py
+│   │   ├── paper_fetcher.py                # Paper metadata and abstract retrieval
+│   │   └── leetcode_fetcher.py             # LeetCode problem fetching
+│   ├── embeddings/                         # Vector embeddings and FAISS operations
 │   │   ├── __init__.py
 │   │   └── vector_store.py
-│   ├── document_processing/      # PDF parsing and lesson generation
+│   ├── document_processing/                # PDF parsing and lesson generation
 │   │   ├── __init__.py
 │   │   ├── pdf_processor.py
 │   │   └── lesson_generator.py
-│   ├── retrieval/               # Paper retrieval and search
+│   ├── retrieval/                          # Paper retrieval and search
 │   │   ├── __init__.py
-│   │   └── paper_retriever.py
-│   ├── agents/                  # LangGraph agent system
-│   │   ├── __init__.py
-│   │   ├── state_management.py
-│   │   └── teaching_agent.py
+│   │   └── paper_retriever.py              # Advanced retrieval with GROBID
 │   └── __init__.py
-├── config/                      # Configuration management
+├── config/                                 # Configuration management
 │   ├── __init__.py
 │   └── settings.py
-├── scripts/                     # Setup and example scripts
+├── scripts/                                # Setup and example scripts
 │   ├── setup_environment.py
-│   └── example_usage.py
-├── requirements.txt             # Python dependencies
-└── README.md                    # This file
+│   └── example_usage.py                    # Usage examples
+├── requirements.txt                        # Python dependencies
+└── README.md                              # This file
 ```
 
-## Installation
+## 🔧 Installation
 
 1. **Clone the repository**:
    ```bash
@@ -69,7 +72,7 @@ llm-teaching-assistant/
    # Start GROBID service on port 8070
    ```
 
-## Quick Start
+## 🚀 Quick Start
 
 1. **Initialize the environment**:
    ```bash
@@ -86,61 +89,100 @@ llm-teaching-assistant/
    python scripts/example_usage.py
    ```
 
-3. **Use in your code**:
+3. **Use the Teaching Agent**:
    ```python
    from src.agents.teaching_agent import TeachingAgent
    
    # Initialize the agent
    agent = TeachingAgent()
    
-   # Ask a question
+   # Ask about research topics
    result = agent.invoke({
-       "messages": "Can you teach me about transformer optimizations?",
+       "messages": [
+           {"role": "human", "content": "Teach me about transformer optimization techniques"}
+       ],
        "context": {}
-   }, {"configurable": {"thread_id": "1"}})
+   }, {"configurable": {"thread_id": "session_1"}})
    
    print(result["messages"][-1].content)
+   
+   # Get coding practice
+   coding_result = agent.invoke({
+       "messages": [
+           {"role": "human", "content": "Give me a LeetCode problem to practice"}
+       ],
+       "context": {}
+   }, {"configurable": {"thread_id": "session_2"}})
+   
+   print(coding_result["messages"][-1].content)
    ```
 
-## Core Components
+## 📚 Core Components
+
+### Teaching Agent
+- **`teaching_agent.py`**: LangGraph-powered conversational agent with integrated tools
+- **`state_management.py`**: State definitions for the agent system
 
 ### Data Fetching
 - **`paper_fetcher.py`**: Retrieves paper metadata from LLMSys repository and abstracts from arXiv
+- **`leetcode_fetcher.py`**: LeetCode problem fetching and processing
 
-### Embeddings
-- **`vector_store.py`**: Manages OpenAI embeddings and FAISS vector operations
-
-### Document Processing
+### Paper Processing
+- **`paper_retriever.py`**: Advanced retrieval with GROBID integration and lesson generation
 - **`pdf_processor.py`**: Interfaces with GROBID for PDF parsing and section extraction
 - **`lesson_generator.py`**: Converts academic sections into beginner-friendly lessons
 
-### Retrieval
-- **`paper_retriever.py`**: Main retrieval tool that finds relevant papers and generates teaching content
+### Supporting Components
+- **`vector_store.py`**: Manages OpenAI embeddings and FAISS vector operations
 
-### Agents
-- **`teaching_agent.py`**: LangGraph-powered conversational agent
-- **`state_management.py`**: State definitions for the agent system
-
-## Configuration
+## ⚙️ Configuration
 
 The system can be configured via environment variables or the `config/settings.py` file:
 
 - `OPENAI_API_KEY`: Your OpenAI API key (required)
 - `EMBEDDING_MODEL`: Embedding model (default: "text-embedding-3-small")
-- `CHAT_MODEL`: Chat model (default: "gpt-4o-mini")
+- `CHAT_MODEL`: Chat model (default: "gpt-4o")
 - `GROBID_URL`: GROBID service URL (default: "http://localhost:8070")
 - `FAISS_INDEX_PATH`: Path to FAISS index file (default: "summary.faiss")
 - `URLS_JSON_PATH`: Path to URLs JSON file (default: "urls.json")
 
-## Usage Examples
+## 📖 Usage Examples
 
-### Basic Paper Search
+### Main Teaching Agent
 ```python
+from src.agents.teaching_agent import TeachingAgent
+
+# Create agent instance
+agent = TeachingAgent()
+
+# Research paper learning
+result = agent.invoke({
+    "messages": [{"role": "human", "content": "Explain BERT architecture"}],
+    "context": {"topic": "nlp"}
+})
+
+# Coding practice
+result = agent.invoke({
+    "messages": [{"role": "human", "content": "Give me a medium difficulty coding problem"}],
+    "context": {"skill_level": "intermediate"}
+})
+```
+
+### Individual Tool Usage
+```python
+# LeetCode problem fetching
+from src.data_fetching.leetcode_fetcher import get_problem
+
+problem = get_problem.invoke({})
+print(f"Problem: {problem['title']}")
+print(f"Difficulty: {problem['difficulty']}")
+print(f"Statement: {problem['statement']}")
+
+# Paper retrieval
 from src.retrieval.paper_retriever import paper_retriever
 
-# Find and explain a paper
-result = paper_retriever("attention mechanisms in transformers")
-print(result)
+lesson = paper_retriever.invoke({"query": "attention mechanisms in transformers"})
+print(lesson)
 ```
 
 ### Manual Component Usage
@@ -156,9 +198,46 @@ processor = EmbeddingProcessor()
 embeddings = processor.create_embeddings(["sample text"])
 ```
 
-## Requirements
+## 🛠️ Requirements
 
 - Python 3.8+
 - OpenAI API key
 - GROBID service (for PDF processing)
 - Required Python packages (see `requirements.txt`)
+
+## 🌟 Key Features
+
+### LangGraph Integration
+Advanced conversation flow management with:
+- Memory and conversation summarization
+- Dynamic tool routing between paper retrieval and coding practice
+- State persistence across conversations
+
+### LeetCode Tools
+Automated coding problem fetching with:
+- API-based problem retrieval from LeetCode
+- Selenium-based fallback for dynamic content
+- Problem filtering by difficulty (Medium/Hard focus)
+- Integration with teaching workflow
+
+### Advanced Paper Processing
+Sophisticated paper retrieval featuring:
+- GROBID integration for structured PDF parsing
+- Section-by-section lesson generation
+- Caching for improved performance
+- Batch processing capabilities
+
+### Teaching-Focused Design
+Built specifically for education with:
+- Beginner-friendly lesson generation
+- Step-by-step explanations with examples
+- Smooth transitions between topics
+- Comprehensive course-like output
+
+## 🤝 Contributing
+
+Feel free to submit issues, feature requests, or pull requests to improve the teaching assistant!
+
+## 📄 License
+
+This project is open source and available under the MIT License.

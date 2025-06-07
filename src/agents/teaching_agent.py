@@ -1,35 +1,116 @@
-#!/usr/bin/env python
-# coding: utf-8
+"""
+Teaching Agent with LangGraph Integration
 
-"""Teaching agent implementation with LangGraph."""
+This module provides an advanced teaching agent that combines paper retrieval
+and LeetCode problem fetching capabilities using LangGraph for conversation flow.
+"""
 
-import re
-from typing import Dict, Any, List
+import os
+from typing import Any, TypedDict, Optional
+
+from langchain.tools import tool
 from langchain.chat_models import init_chat_model
-from langchain_core.messages import AnyMessage, HumanMessage, AIMessage
+from langchain_core.messages import AnyMessage, HumanMessage, AIMessage, ToolMessage
 from langchain_core.messages.utils import count_tokens_approximately
-from langgraph.graph import StateGraph, START
+from langgraph.graph import StateGraph, START, MessagesState
 from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.prebuilt import ToolNode
 from langmem.short_term import SummarizationNode
 
-from .state_management import State, LLMInputState
+from ..data_fetching.leetcode_fetcher import get_problem
 from ..retrieval.paper_retriever import paper_retriever
 
 
+class AgentState(MessagesState):
+    """State management for the teaching agent."""
+    context: dict[str, Any]
+
+
+class LLMInputState(TypedDict):
+    """Input state for LLM processing."""
+    summarized_messages: list[AnyMessage]
+    context: dict[str, Any]
+
+
+def route_after_tools(state: dict[str, Any]) -> str:
+    """Route after tool execution based on the last tool used."""
+    messages = state["messages"]
+    if not messages:
+        return "agent"
+    
+    last_message = messages[-1]
+    if isinstance(last_message, ToolMessage) and last_message.name == "paper_retriever":
+        return "end"
+    return "agent"
+
+
+def route_after_agent(state: dict[str, Any]) -> str:
+    """Route after agent response based on tool calls or recent tool usage."""
+    last_message = state["messages"][-1]
+    
+    # Check if the last LeetCode problem was fetched recently
+    for message in reversed(state["messages"]):
+        if isinstance(message, ToolMessage) and message.name == "get_problem":
+            return "end"
+    
+    # Check if agent wants to call tools
+    if last_message.additional_kwargs.get("tool_calls"):
+        return "tools"
+    
+    return "end"
+
+
+def agent_node(state: MessagesState) -> dict[str, Any]:
+    """
+    Main agent node that processes messages and generates responses.
+    
+    This node takes prior messages in state["messages"], sends them 
+    to the LLM, and returns the new AIMessage. If the LLM suggests 
+    a tool_call, that will be in ai_message.tool_calls.
+    """
+    last_human_content = ""
+    last_tool_content = ""
+    
+    # Extract the last human message
+    for message in reversed(state["messages"]):
+        if isinstance(message, HumanMessage):
+            last_human_content = message.content
+            break
+    
+    # Extract the last tool message
+    for message in reversed(state["messages"]):
+        if isinstance(message, ToolMessage):
+            last_tool_content = message.content
+            break
+
+    # Get model with tools bound
+    model = init_chat_model("openai:gpt-4o").bind_tools([paper_retriever, get_problem])
+    
+    # Generate response
+    response = model.invoke(last_human_content + last_tool_content)
+    print(response)
+    
+    return {"messages": state["messages"] + [response]}
+
+
 class TeachingAgent:
-    """LLM Teaching Assistant with paper retrieval capabilities."""
+    """
+    Teaching Agent with integrated paper retrieval and LeetCode capabilities.
+    
+    This agent combines:
+    - Intelligent paper retrieval from arXiv
+    - LeetCode problem fetching for coding practice
+    - Conversation memory and summarization
+    - LangGraph-powered conversation flow
+    """
     
     def __init__(self):
         """Initialize the teaching agent."""
         self.model = init_chat_model("openai:gpt-4o")
         self.summarization_model = self.model.bind(max_tokens=128)
-        self.checkpointer = InMemorySaver()
-        self.graph = self._build_graph()
-    
-    def _build_graph(self) -> StateGraph:
-        """Build the agent graph with summarization and reaction nodes."""
-        # Create summarization node
-        summarization_node = SummarizationNode(
+        
+        # Setup summarization node
+        self.summarization_node = SummarizationNode(
             token_counter=count_tokens_approximately,
             model=self.summarization_model,
             max_tokens=256,
@@ -37,77 +118,64 @@ class TeachingAgent:
             max_summary_tokens=128,
         )
         
-        # Build graph
-        builder = StateGraph(State)
-        builder.add_node("summarize", summarization_node)
-        builder.add_node("react_with_tools", self._react_with_tools)
+        # Setup tool node
+        self.tool_node = ToolNode([paper_retriever, get_problem])
+        
+        # Build the graph
+        self._build_graph()
+    
+    def _build_graph(self):
+        """Build the LangGraph conversation flow."""
+        checkpointer = InMemorySaver()
+        builder = StateGraph(AgentState)
+
+        # Add nodes
+        builder.add_node("summarize", self.summarization_node)
+        builder.add_node("agent", agent_node)
+        builder.add_node("tools", self.tool_node)
+
+        # Add edges
         builder.add_edge(START, "summarize")
-        builder.add_edge("summarize", "react_with_tools")
-        
-        return builder.compile(checkpointer=self.checkpointer)
-    
-    def _react_with_tools(self, state: LLMInputState) -> Dict[str, Any]:
-        """React with available tools (paper retrieval)."""
-        ctx = state.get("context", {})
-        chat_history: List[AnyMessage] = state["summarized_messages"]
-        running_summary = state["context"].get("running_summary", "")
-        
-        # Get last user message
-        last_user_msg = ""
-        for msg in reversed(chat_history):
-            if isinstance(msg, HumanMessage):
-                last_user_msg = msg.content
-                break
+        builder.add_edge("summarize", "agent")
 
-        tools_block = "paper_retriever"
+        # Add conditional edges
+        builder.add_conditional_edges(
+            "agent",
+            route_after_agent,
+            {
+                "tools": "tools",
+                "end": "END"
+            }
+        )
 
-        prompt_text = f"""
-            You are an expert systems engineer and coding coach.
-            When teaching, use intuitive explanations and step-by-step math if needed.
-            Call paper_retriever when you need content from a paper, then return the retrieved content directly to the user.
-            You are a great AI-Assistant that has access to the following tool:
+        builder.add_conditional_edges(
+            "tools",
+            route_after_tools,
+            {
+                "agent": "agent",
+                "end": "END"
+            }
+        )
+
+        self.graph = builder.compile(checkpointer=checkpointer)
     
-            {tools_block}
-    
-            To use a tool, please use the following format:
-    
-            '''
-            Thought: Do I need to use a tool? Yes
-            Action: paper_retriever
-            Action Input: <your paper query here>
-            Observation: <tool output>
-            ... (this Thought/Action/Action Input/Observation can repeat)
-            '''
-    
-            When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
-            '''
-            Thought: Do I need to use a tool? No
-            Final Answer: [your response here]
-            '''
-    
-            Conversation summary so far:
-            {running_summary}
-    
-            Human: {last_user_msg}
+    def invoke(self, input_data: dict, config: Optional[dict] = None) -> dict:
         """
-        response = self.model.invoke([{"role": "user", "content": prompt_text}])
-        raw_text: str = response.content
-
-        # Look for tool usage pattern
-        action_pattern = r"Action:\s*paper_retriever\s*[\r\n]+Action Input:\s*(.+)"
-        m = re.search(action_pattern, raw_text)
-        if m:
-            paper_query = m.group(1).strip()
-            tool_output = paper_retriever(paper_query)
-            final_message = AIMessage(content=tool_output)
-        else:
-            final_message = response
-
-        return {
-            "messages": [final_message],
-            "context": ctx
-        }
+        Invoke the teaching agent.
+        
+        Args:
+            input_data: Dictionary containing messages and context
+            config: Optional configuration including thread_id
+            
+        Returns:
+            Dictionary with response messages
+        """
+        return self.graph.invoke(input_data, config or {})
     
-    def invoke(self, input_data: Dict[str, Any], config: Dict[str, Any]) -> Dict[str, Any]:
-        """Invoke the teaching agent."""
-        return self.graph.invoke(input_data, config)
+    def visualize_graph(self):
+        """Visualize the agent's conversation graph (for debugging)."""
+        try:
+            from IPython.display import Image, display
+            display(Image(self.graph.get_graph().draw_mermaid_png()))
+        except Exception:
+            pass

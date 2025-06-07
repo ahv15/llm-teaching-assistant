@@ -1,6 +1,15 @@
-"""Agent system and state management"""
+"""
+Agents Package
 
-from .teaching_agent import TeachingAgent
-from .state_management import State, LLMInputState
+This package contains various AI agents for the LLM Teaching Assistant system,
+including teaching agents and state management.
+"""
 
-__all__ = ['TeachingAgent', 'State', 'LLMInputState']
+from .teaching_agent import TeachingAgent, AgentState
+from .state_management import State
+
+__all__ = [
+    'TeachingAgent',
+    'AgentState',
+    'State'
+]
