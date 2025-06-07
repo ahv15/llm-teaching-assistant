@@ -10,7 +10,7 @@ A generative AI-powered teaching assistant that retrieves and explains research 
 - **PDF Processing**: Integrates with GROBID for structured document parsing
 - **LeetCode Integration**: Fetches random coding problems for interview practice
 - **Conversational Interface**: LangGraph-powered agent with memory and summarization
-- **Enhanced Agent System**: Advanced conversation flow with tool integration
+- **Advanced Agent System**: Sophisticated conversation flow with tool integration
 
 ## 📁 Project Structure
 
@@ -19,10 +19,9 @@ llm-teaching-assistant/
 ├── src/                                    # Main source code
 │   ├── agents/                             # AI agent implementations
 │   │   ├── __init__.py
-│   │   ├── enhanced_teaching_agent.py      # LangGraph-powered enhanced agent
+│   │   ├── teaching_agent.py               # LangGraph-powered teaching agent
 │   │   ├── leetcode_tools.py               # LeetCode problem fetching tools
-│   │   ├── state_management.py             # Agent state definitions
-│   │   └── teaching_agent.py               # Basic teaching agent
+│   │   └── state_management.py             # Agent state definitions
 │   ├── data_fetching/                      # Paper metadata and abstract retrieval
 │   │   ├── __init__.py
 │   │   └── paper_fetcher.py
@@ -35,16 +34,14 @@ llm-teaching-assistant/
 │   │   └── lesson_generator.py
 │   ├── retrieval/                          # Paper retrieval and search
 │   │   ├── __init__.py
-│   │   ├── paper_retriever.py              # Basic paper retrieval
-│   │   └── enhanced_paper_retriever.py     # Advanced retrieval with GROBID
+│   │   └── paper_retriever.py              # Advanced retrieval with GROBID
 │   └── __init__.py
 ├── config/                                 # Configuration management
 │   ├── __init__.py
 │   └── settings.py
 ├── scripts/                                # Setup and example scripts
 │   ├── setup_environment.py
-│   ├── example_usage.py                    # Basic usage examples
-│   └── enhanced_example_usage.py           # Enhanced agent examples
+│   └── example_usage.py                    # Usage examples
 ├── requirements.txt                        # Python dependencies
 └── README.md                              # This file
 ```
@@ -87,17 +84,17 @@ llm-teaching-assistant/
    - Create vector embeddings
    - Build the FAISS index
 
-2. **Run the enhanced example**:
+2. **Run the example**:
    ```bash
-   python scripts/enhanced_example_usage.py
+   python scripts/example_usage.py
    ```
 
-3. **Use the Enhanced Teaching Agent**:
+3. **Use the Teaching Agent**:
    ```python
-   from src.agents.enhanced_teaching_agent import EnhancedTeachingAgent
+   from src.agents.teaching_agent import TeachingAgent
    
-   # Initialize the enhanced agent
-   agent = EnhancedTeachingAgent()
+   # Initialize the agent
+   agent = TeachingAgent()
    
    # Ask about research topics
    result = agent.invoke({
@@ -122,23 +119,19 @@ llm-teaching-assistant/
 
 ## 📚 Core Components
 
-### Enhanced Teaching Agent
-- **`enhanced_teaching_agent.py`**: LangGraph-powered conversational agent with integrated tools
+### Teaching Agent
+- **`teaching_agent.py`**: LangGraph-powered conversational agent with integrated tools
 - **`leetcode_tools.py`**: LeetCode problem fetching and processing
 - **`state_management.py`**: State definitions for the agent system
 
-### Advanced Paper Processing
-- **`enhanced_paper_retriever.py`**: Advanced retrieval with GROBID integration and lesson generation
+### Paper Processing
+- **`paper_retriever.py`**: Advanced retrieval with GROBID integration and lesson generation
 - **`pdf_processor.py`**: Interfaces with GROBID for PDF parsing and section extraction
 - **`lesson_generator.py`**: Converts academic sections into beginner-friendly lessons
 
 ### Data Management
 - **`paper_fetcher.py`**: Retrieves paper metadata from LLMSys repository and abstracts from arXiv
 - **`vector_store.py`**: Manages OpenAI embeddings and FAISS vector operations
-
-### Traditional Components
-- **`teaching_agent.py`**: Basic conversational agent
-- **`paper_retriever.py`**: Simple paper retrieval functionality
 
 ## ⚙️ Configuration
 
@@ -153,12 +146,12 @@ The system can be configured via environment variables or the `config/settings.p
 
 ## 📖 Usage Examples
 
-### Enhanced Agent with Multiple Capabilities
+### Main Teaching Agent
 ```python
-from src.agents.enhanced_teaching_agent import EnhancedTeachingAgent
+from src.agents.teaching_agent import TeachingAgent
 
 # Create agent instance
-agent = EnhancedTeachingAgent()
+agent = TeachingAgent()
 
 # Research paper learning
 result = agent.invoke({
@@ -183,8 +176,8 @@ print(f"Problem: {problem['title']}")
 print(f"Difficulty: {problem['difficulty']}")
 print(f"Statement: {problem['statement']}")
 
-# Advanced paper retrieval
-from src.retrieval.enhanced_paper_retriever import paper_retriever
+# Paper retrieval
+from src.retrieval.paper_retriever import paper_retriever
 
 lesson = paper_retriever.invoke({"query": "attention mechanisms in transformers"})
 print(lesson)
@@ -210,14 +203,34 @@ embeddings = processor.create_embeddings(["sample text"])
 - GROBID service (for PDF processing)
 - Required Python packages (see `requirements.txt`)
 
-## 🆕 What's New in Enhanced Version
+## 🌟 Key Features
 
-- **LangGraph Integration**: Advanced conversation flow management
-- **LeetCode Tools**: Automated coding problem fetching for interview practice
-- **Enhanced Paper Processing**: Improved GROBID integration with better error handling
-- **Modular Architecture**: Clean separation of concerns with proper package structure
-- **Advanced Agent System**: Memory management and conversation summarization
-- **Tool Integration**: Seamless switching between paper learning and coding practice
+### LangGraph Integration
+Advanced conversation flow management with:
+- Memory and conversation summarization
+- Dynamic tool routing between paper retrieval and coding practice
+- State persistence across conversations
+
+### LeetCode Tools
+Automated coding problem fetching with:
+- API-based problem retrieval from LeetCode
+- Selenium-based fallback for dynamic content
+- Problem filtering by difficulty (Medium/Hard focus)
+- Integration with teaching workflow
+
+### Advanced Paper Processing
+Sophisticated paper retrieval featuring:
+- GROBID integration for structured PDF parsing
+- Section-by-section lesson generation
+- Caching for improved performance
+- Batch processing capabilities
+
+### Teaching-Focused Design
+Built specifically for education with:
+- Beginner-friendly lesson generation
+- Step-by-step explanations with examples
+- Smooth transitions between topics
+- Comprehensive course-like output
 
 ## 🤝 Contributing
 
