@@ -1,6 +1,20 @@
-"""Agent system and state management"""
+"""
+Agents Package
+
+This package contains various AI agents for the LLM Teaching Assistant system,
+including teaching agents, state management, and tool integrations.
+"""
 
 from .teaching_agent import TeachingAgent
-from .state_management import State, LLMInputState
+from .enhanced_teaching_agent import EnhancedTeachingAgent, AgentState
+from .leetcode_tools import get_problem, SeleniumLeetCodeFetcher
+from .state_management import State
 
-__all__ = ['TeachingAgent', 'State', 'LLMInputState']
+__all__ = [
+    'TeachingAgent',
+    'EnhancedTeachingAgent', 
+    'AgentState',
+    'get_problem',
+    'SeleniumLeetCodeFetcher',
+    'State'
+]
