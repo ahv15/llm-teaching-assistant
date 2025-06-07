@@ -68,7 +68,7 @@ def demonstrate_individual_tools():
     print("=" * 50)
     
     # LeetCode tool
-    from src.agents.leetcode_tools import get_problem
+    from src.data_fetching.leetcode_fetcher import get_problem
     print("\n📝 Fetching random LeetCode problem...")
     problem = get_problem.invoke({})
     print(f"Problem: {problem.get('title', 'N/A')}")
