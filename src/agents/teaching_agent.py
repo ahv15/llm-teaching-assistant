@@ -17,7 +17,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.prebuilt import ToolNode
 from langmem.short_term import SummarizationNode
 
-from .leetcode_tools import get_problem
+from ..data_fetching.leetcode_fetcher import get_problem
 from ..retrieval.paper_retriever import paper_retriever
 
 
